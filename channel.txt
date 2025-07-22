@@ -1,0 +1,657 @@
+Creating a channel¶
+Now that we have peer and orderer nodes running on our machine, we can use the script to create a Fabric channel for transactions between Org1 and Org2. Channels are a private layer of communication between specific network members. Channels can be used only by organizations that are invited to the channel, and are invisible to other members of the network. Each channel has a separate blockchain ledger. Organizations that have been invited “join” their peers to the channel to store the channel ledger and validate the transactions on the channel.
+
+You can use the network.sh script to create a channel between Org1 and Org2 and join their peers to the channel. Run the following command to create a channel with the default name of mychannel:
+
+./network.sh createChannel
+If the command was successful, you can see the following message printed in your logs:
+
+Channel 'mychannel' joined
+You can also use the channel flag to create a channel with custom name. As an example, the following command would create a channel named channel1:
+
+./network.sh createChannel -c channel1
+The channel flag also allows you to create multiple channels by specifying different channel names. After you create mychannel or channel1, you can use the command below to create a second channel named channel2:
+
+./network.sh createChannel -c channel2
+NOTE: Make sure the name of the channel applies the following restrictions:
+
+contains only lower case ASCII alphanumerics, dots ‘.’, and dashes ‘-’
+
+is shorter than 250 characters
+
+starts with a letter
+
+If you want to bring up the network and create a channel in a single step, you can use the up and createChannel modes together:
+
+./network.sh up createChannel
+
+
+
+ssingh1@EXP-D-0319:~/Desktop/Cusour/fabric-samples/test-network$ create channel
+Command 'create' not found, did you mean:
+  command 'pcreate' from deb pbuilder-scripts (22)
+Try: sudo apt install <deb name>
+
+ChatGPT said:
+To create a channel in your Hyperledger Fabric test network, you shouldn't run a bare create channel command. Instead, use the Fabric-provided network.sh script or the peer CLI. Here's how it works:
+
+🎯 Option 1: Using network.sh (test-network)
+If you're using the standard fabric-samples/test-network, follow these steps:
+
+Navigate to the test-network directory:
+
+bash
+Copy
+Edit
+cd ~/fabric-samples/test-network
+Then:
+
+To create the default channel (mychannel):
+
+bash
+Copy
+Edit
+./network.sh createChannel
+To create and join in one step:
+
+bash
+Copy
+Edit
+./network.sh up createChannel
+To use a custom channel name (e.g. channel1):
+
+bash
+Copy
+Edit
+./network.sh createChannel -c channel1
+This automatically generates the channel, has Org peers join it, and logs a success message 
+hadv-fabric.readthedocs.io
++10
+hyperledger-fabric.readthedocs.io
++10
+hyperledger-fabric.readthedocs.io
++10
+Reddit
+.
+
+🎯 Option 2: Manually with the peer CLI
+If you'd rather control it manually:
+
+Generate the config transaction file, e.g.:
+
+bash
+Copy
+Edit
+configtxgen -profile TwoOrgsChannel -outputCreateChannelTx ./channel-artifacts/createchannel.tx -channelID mychannel
+Create the channel using peer channel create:
+
+bash
+Copy
+Edit
+export CORE_PEER_LOCALMSPID=Org1MSP
+export CORE_PEER_MSPCONFIGPATH=.../Org1/users/Admin@org1.example.com/msp
+export CORE_PEER_TLS_ROOTCERT_FILE=.../peers/peer0.org1/tls/ca.crt
+export CORE_PEER_ADDRESS=localhost:7051
+
+peer channel create -c mychannel -f ./channel-artifacts/createchannel.tx \
+  --orderer orderer.example.com:7050 --tls --cafile $ORDERER_CA -t 30
+This submits the channel creation transaction to the orderer and produces mychannel.block 
+Hyperlegendary
++10
+doc-fabric.readthedocs.io
++10
+hyperledger-fabric.readthedocs.io
++10
+.
+
+Have peers join the channel:
+
+Inside the CLI container, for each peer:
+
+bash
+Copy
+Edit
+peer channel join -b ./channel-artifacts/mychannel.block
+This adds the peer to the channel ledger 
+hyperledger-fabric.readthedocs.io
++1
+hyperledger-fabric.readthedocs.io
++1
+.
+
+✅ TL;DR Comparison
+Method	Advantages
+./network.sh createChannel	Simpler: automatic crypto generation & peer joins
+peer channel create + peer channel join	More control: good for custom setups
+
+🚀 Next Steps After Channel Creation
+Join additional peers (if not done by script).
+
+Install and commit chaincode to the channel.
+
+Update anchor peers for gossip (optional but recommended) 
+-fabric.readthedocs.io
++14
+Hyperlegendary
++14
+hyperledger-fabric.readthedocs.io
++14
+-fabric.readthedocs.io
++4
+hyperledger-fabric.readthedocs.io
++4
+hyperledger-fabric.readthedocs.io
++4
+hadv-fabric.readthedocs.io
++3
+hyperledger-fabric.readthedocs.io
++3
+doc-fabric.readthedocs.io
++3
+Reddit
++6
+-fabric.readthedocs.io
++6
+hyperledger-fabric.readthedocs.io
++6
+.
+
+🛠️ Example Using network.sh
+bash
+Copy
+Edit
+cd fabric-samples/test-network
+./network.sh up
+./network.sh createChannel  # Or `up createChannel`
+That’s all it takes—your channel will be created and peers added automatically.
+
+Need help with custom configtx.yaml, anchor peers, chaincode deployment, or manually scripting the process? I’m here to help!
+
+
+
+
+
+
+
+Sources
+You said:
+ssingh1@EXP-D-0319:~/Desktop/Cusour/fabric-samples/test-network$ ./network.sh createChannel
+Using docker and docker compose
+Creating channel 'mychannel'.
+If network is not up, starting nodes with CLI timeout of '5' tries and CLI delay of '3' seconds and using database 'leveldb   what this error explain
+Bringing up network
+LOCAL_VERSION=v2.5.12
+DOCKER_IMAGE_VERSION=v2.5.12
+WARN[0000] /home/ssingh1/Desktop/Cusour/fabric-samples/test-network/compose/compose-test-net.yaml: the attribute version is obsolete, it will be ignored, please remove it to avoid potential confusion 
+WARN[0000] /home/ssingh1/Desktop/Cusour/fabric-samples/test-network/compose/docker/docker-compose-test-net.yaml: the attribute version is obsolete, it will be ignored, please remove it to avoid potential confusion 
+[+] Running 3/3
+ ✔ Container peer0.org2.example.com  Run...                                    0.0s 
+ ✔ Container peer0.org1.example.com  Run...                                    0.0s 
+ ✔ Container orderer.example.com     Runnin...                                 0.0s 
+CONTAINER ID   IMAGE                               COMMAND             CREATED          STATUS          PORTS                                                                                                                                   NAMES
+727ad2704a58   hyperledger/fabric-peer:latest      "peer node start"   31 minutes ago   Up 31 minutes   0.0.0.0:7051->7051/tcp, [::]:7051->7051/tcp, 0.0.0.0:9444->9444/tcp, [::]:9444->9444/tcp                                                peer0.org1.example.com
+779896b8cbeb   hyperledger/fabric-orderer:latest   "orderer"           31 minutes ago   Up 31 minutes   0.0.0.0:7050->7050/tcp, [::]:7050->7050/tcp, 0.0.0.0:7053->7053/tcp, [::]:7053->7053/tcp, 0.0.0.0:9443->9443/tcp, [::]:9443->9443/tcp   orderer.example.com
+6c6e9e50f940   hyperledger/fabric-peer:latest      "peer node start"   31 minutes ago   Up 31 minutes   0.0.0.0:9051->9051/tcp, [::]:9051->9051/tcp, 7051/tcp, 0.0.0.0:9445->9445/tcp, [::]:9445->9445/tcp                                      peer0.org2.example.com
+Using docker and docker compose
+Generating channel genesis block 'mychannel.block'
+Using organization 1
+/home/ssingh1/Desktop/Cusour/fabric-samples/test-network/../bin/configtxgen
++ '[' 0 -eq 1 ']'
++ configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/mychannel.block -channelID mychannel
+2025-07-22 11:57:50.179 IST 0001 INFO [common.tools.configtxgen] main -> Loading configuration
+2025-07-22 11:57:50.179 IST 0002 PANI [common.tools.configtxgen.localconfig] Load -> Error reading configuration: yaml: line 87: did not find expected key
+2025-07-22 11:57:50.180 IST 0003 PANI [common.tools.configtxgen] func1 -> Error reading configuration: yaml: line 87: did not find expected key
+panic: Error reading configuration: yaml: line 87: did not find expected key [recovered]
+        panic: Error reading configuration: yaml: line 87: did not find expected key
+
+goroutine 1 [running]:
+go.uber.org/zap/zapcore.CheckWriteAction.OnWrite(0x0?, 0x45?, {0x0?, 0x0?, 0xc000168400?})
+        /home/runner/work/fabric/fabric/vendor/go.uber.org/zap/zapcore/entry.go:196 +0x54
+go.uber.org/zap/zapcore.(*CheckedEntry).Write(0xc000496dd0, {0x0, 0x0, 0x0})
+        /home/runner/work/fabric/fabric/vendor/go.uber.org/zap/zapcore/entry.go:262 +0x24e
+go.uber.org/zap.(*SugaredLogger).log(0xc0004a0020, 0x4, {0xc00056e1e0?, 0x0?}, {0x0?, 0xc00056e190?, 0x2f?}, {0x0, 0x0, 0x0})
+        /home/runner/work/fabric/fabric/vendor/go.uber.org/zap/sugar.go:355 +0xec
+go.uber.org/zap.(*SugaredLogger).Panicf(...)
+        /home/runner/work/fabric/fabric/vendor/go.uber.org/zap/sugar.go:229
+github.com/hyperledger/fabric/common/flogging.(*FabricLogger).Panic(0xc0004a0028, {0xc00005d9a8?, 0xdc2e97?, 0x16?})
+        /home/runner/work/fabric/fabric/common/flogging/zap.go:73 +0x57
+main.main.func1()
+        /home/runner/work/fabric/fabric/cmd/configtxgen/main.go:261 +0x1b2
+panic({0xc6bb20?, 0xc00011f1d0?})
+        /opt/hostedtoolcache/go/1.23.5/x64/src/runtime/panic.go:785 +0x132
+go.uber.org/zap/zapcore.CheckWriteAction.OnWrite(0x0?, 0xc00005dad8?, {0x0?, 0x0?, 0xc0001688e0?})
+        /home/runner/work/fabric/fabric/vendor/go.uber.org/zap/zapcore/entry.go:196 +0x54
+go.uber.org/zap/zapcore.(*CheckedEntry).Write(0xc000496a90, {0x0, 0x0, 0x0})
+        /home/runner/work/fabric/fabric/vendor/go.uber.org/zap/zapcore/entry.go:262 +0x24e
+go.uber.org/zap.(*SugaredLogger).log(0xc000125178, 0x4, {0xdcafc9?, 0x15?}, {0xc00005dd78?, 0xb48b47?, 0x10d34bd?}, {0x0, 0x0, 0x0})
+        /home/runner/work/fabric/fabric/vendor/go.uber.org/zap/sugar.go:355 +0xec
+go.uber.org/zap.(*SugaredLogger).Panicf(...)
+        /home/runner/work/fabric/fabric/vendor/go.uber.org/zap/sugar.go:229
+github.com/hyperledger/fabric/common/flogging.(*FabricLogger).Panicf(...)
+        /home/runner/work/fabric/fabric/common/flogging/zap.go:74
+github.com/hyperledger/fabric/internal/configtxgen/genesisconfig.Load({0x7ffc3c76c409, 0x10}, {0x0, 0x0, 0xdc4c6a?})
+        /home/runner/work/fabric/fabric/internal/configtxgen/genesisconfig/config.go:238 +0x1bc
+main.main()
+        /home/runner/work/fabric/fabric/cmd/configtxgen/main.go:279 +0x850
++ res=2
+Failed to generate channel configuration transaction...
+
+ChatGPT said:
+That error:
+
+arduino
+Copy
+Edit
+yaml: line 87: did not find expected key
+is coming from configtxgen when it tries to read your configtx.yaml. It indicates a syntax issue around line 87—likely due to:
+
+Incorrect indentation
+
+Invalid characters (like stray commas)
+
+Tabs instead of spaces
+
+🔍 1. Fix Indentation Issues
+YAML is very sensitive to indentation and only supports spaces—not tabs. Even if it looks aligned, hidden tabs or inconsistent spacing can break parsing. A common approach:
+
+Use a YAML linter, e.g.:
+
+bash
+Copy
+Edit
+pip install yamllint
+yamllint configtx.yaml
+Or use an IDE/editor (VS Code, PyCharm, Sublime) with YAML highlighting and whitespace visualization.
+
+🛠 2. Manually Check Around Line 87
+Open your configtx.yaml, go to line 87, and check:
+
+It matches the indentation of the block above it
+
+There are no stray -, :, commas, or tabs
+
+The previous block ends properly before new mapping begins
+
+📌 Common Pitfalls
+Mistake	Example	Fix
+Tabs instead of spaces	Pressing ↹	Replace tabs with spaces (use 2 or 4 consistently)
+Extra comma at line end	Name: Org1,	Remove the comma
+Dash mistaken for list	- Name: Org1 under map	Ensure lists are under a key
+Misaligned blocks	Mixing 2 and 4 spaces	Stick to a single spacing level
+
+Rendering mistake anecdote: Jenkins YAML errors often caused by stray commas or misaligned indent—“check the back of Code” advice 
+hyperledger-fabric.readthedocs.io
++6
+hyperledger-fabric.readthedocs.io
++6
+henry-fabric.readthedocs.io
++6
+reddit.com
++3
+henry-fabric.readthedocs.io
++3
+community.render.com
++3
+reddit.com
+hyperledger-fabric.readthedocs.io
++1
+blog.csdn.net
++1
+reddit.com
+medium.com
+.
+
+📝 3. Example Fix
+Before (broken):
+
+yaml
+Copy
+Edit
+Organizations:
+  - &Org1
+    Name: Org1MSP
+    ID: Org1MSP
+     MSPDir: crypto-config/peerOrganizations/org1.example.com/msp
+    Policies: 
+Notice the extra space before MSPDir, or missing content in Policies:.
+
+After (correct):
+
+yaml
+Copy
+Edit
+Organizations:
+  - &Org1
+    Name: Org1MSP
+    ID: Org1MSP
+    MSPDir: crypto-config/peerOrganizations/org1.example.com/msp
+    Policies:
+      Readers:
+✅ Steps to Resolve
+Run a linter:
+
+bash
+Copy
+Edit
+yamllint configtx.yaml
+Or fix manually around line 87.
+
+Remove tabs; convert all to spaces.
+
+Remove trailing commas or misplaced dashes.
+
+Save and re-run:
+
+bash
+Copy
+Edit
+./network.sh createChannel
+🧠 TL;DR
+YAML parsing error at line 87 signifies misaligned indentation or invalid syntax.
+
+Use linters or editors to detect the problem.
+
+Correct indentation, remove tabs, commas, or broken fields.
+
+Retest and your configtxgen should succeed.
+
+Let me know if you’d like me to review the problematic lines—feel free to paste an excerpt around line 87 from your configtx.yaml, and I can pinpoint the issue!
+
+
+
+
+
+
+
+Sources
+You said:
+ssingh1@EXP-D-0319:~/Desktop/Cusour/fabric-samples/test-network$ ./network.sh createChannel
+Using docker and docker compose
+Creating channel 'mychannel'.
+If network is not up, starting nodes with CLI timeout of '5' tries and CLI delay of '3' seconds and using database 'leveldb   explain this error
+Bringing up network
+LOCAL_VERSION=v2.5.12
+DOCKER_IMAGE_VERSION=v2.5.12
+WARN[0000] /home/ssingh1/Desktop/Cusour/fabric-samples/test-network/compose/compose-test-net.yaml: the attribute version is obsolete, it will be ignored, please remove it to avoid potential confusion 
+WARN[0000] /home/ssingh1/Desktop/Cusour/fabric-samples/test-network/compose/docker/docker-compose-test-net.yaml: the attribute version is obsolete, it will be ignored, please remove it to avoid potential confusion 
+[+] Running 3/3
+ ✔ Container peer0.org2.example.com  Run...                                    0.0s 
+ ✔ Container peer0.org1.example.com  Run...                                    0.0s 
+ ✔ Container orderer.example.com     Runnin...                                 0.0s 
+CONTAINER ID   IMAGE                               COMMAND             CREATED          STATUS          PORTS                                                                                                                                   NAMES
+727ad2704a58   hyperledger/fabric-peer:latest      "peer node start"   34 minutes ago   Up 34 minutes   0.0.0.0:7051->7051/tcp, [::]:7051->7051/tcp, 0.0.0.0:9444->9444/tcp, [::]:9444->9444/tcp                                                peer0.org1.example.com
+779896b8cbeb   hyperledger/fabric-orderer:latest   "orderer"           34 minutes ago   Up 34 minutes   0.0.0.0:7050->7050/tcp, [::]:7050->7050/tcp, 0.0.0.0:7053->7053/tcp, [::]:7053->7053/tcp, 0.0.0.0:9443->9443/tcp, [::]:9443->9443/tcp   orderer.example.com
+6c6e9e50f940   hyperledger/fabric-peer:latest      "peer node start"   34 minutes ago   Up 34 minutes   0.0.0.0:9051->9051/tcp, [::]:9051->9051/tcp, 7051/tcp, 0.0.0.0:9445->9445/tcp, [::]:9445->9445/tcp                                      peer0.org2.example.com
+Using docker and docker compose
+Generating channel genesis block 'mychannel.block'
+Using organization 1
+/home/ssingh1/Desktop/Cusour/fabric-samples/test-network/../bin/configtxgen
++ '[' 0 -eq 1 ']'
++ configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/mychannel.block -channelID mychannel
+2025-07-22 12:01:28.585 IST 0001 INFO [common.tools.configtxgen] main -> Loading configuration
+2025-07-22 12:01:28.590 IST 0002 INFO [common.tools.configtxgen.localconfig] completeInitialization -> orderer type: etcdraft
+2025-07-22 12:01:28.590 IST 0003 INFO [common.tools.configtxgen.localconfig] completeInitialization -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
+2025-07-22 12:01:28.590 IST 0004 INFO [common.tools.configtxgen.localconfig] Load -> Loaded configuration: /home/ssingh1/Desktop/Cusour/fabric-samples/test-network/configtx/configtx.yaml
+2025-07-22 12:01:28.591 IST 0005 INFO [common.tools.configtxgen] doOutputBlock -> Generating genesis block
+2025-07-22 12:01:28.591 IST 0006 INFO [common.tools.configtxgen] doOutputBlock -> Creating application channel genesis block
+2025-07-22 12:01:28.592 IST 0007 INFO [common.tools.configtxgen] doOutputBlock -> Writing genesis block
++ res=0
+Creating channel mychannel
+Adding orderers
++ . scripts/orderer.sh mychannel
++ '[' 0 -eq 1 ']'
++ res=0
+Status: 201
+{
+        "name": "mychannel",
+        "url": "/participation/v1/channels/mychannel",
+        "consensusRelation": "consenter",
+        "status": "active",
+        "height": 1
+}
+
+Channel 'mychannel' created
+Joining org1 peer to the channel...
+Using organization 1
++ peer channel join -b ./channel-artifacts/mychannel.block
++ res=0
+2025-07-22 12:01:34.812 IST 0001 INFO [channelCmd] InitCmdFactory -> Endorser and orderer connections initialized
+2025-07-22 12:01:34.894 IST 0002 INFO [channelCmd] executeJoin -> Successfully submitted proposal to join channel
+Joining org2 peer to the channel...
+Using organization 2
++ peer channel join -b ./channel-artifacts/mychannel.block
++ res=0
+2025-07-22 12:01:37.988 IST 0001 INFO [channelCmd] InitCmdFactory -> Endorser and orderer connections initialized
+2025-07-22 12:01:38.078 IST 0002 INFO [channelCmd] executeJoin -> Successfully submitted proposal to join channel
+Setting anchor peer for org1...
+Using organization 1
+Fetching channel config for channel mychannel
+Using organization 1
+Fetching the most recent configuration block for the channel
+++ peer channel fetch config /home/ssingh1/Desktop/Cusour/fabric-samples/test-network/channel-artifacts/config_block.pb -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com -c mychannel --tls --cafile /home/ssingh1/Desktop/Cusour/fabric-samples/test-network/organizations/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem
+2025-07-22 12:01:38.174 IST 0001 INFO [channelCmd] InitCmdFactory -> Endorser and orderer connections initialized
+2025-07-22 12:01:38.176 IST 0002 INFO [cli.common] readBlock -> Received block: 0
+2025-07-22 12:01:38.176 IST 0003 INFO [channelCmd] fetch -> Retrieving last config block: 0
+2025-07-22 12:01:38.176 IST 0004 INFO [cli.common] readBlock -> Received block: 0
+Decoding config block to JSON and isolating config to /home/ssingh1/Desktop/Cusour/fabric-samples/test-network/channel-artifacts/Org1MSPconfig.json
+++ configtxlator proto_decode --input /home/ssingh1/Desktop/Cusour/fabric-samples/test-network/channel-artifacts/config_block.pb --type common.Block --output /home/ssingh1/Desktop/Cusour/fabric-samples/test-network/channel-artifacts/config_block.json
+++ jq '.data.data[0].payload.data.config' /home/ssingh1/Desktop/Cusour/fabric-samples/test-network/channel-artifacts/config_block.json
+/home/ssingh1/Desktop/Cusour/fabric-samples/test-network/scripts/configUpdate.sh: line 35: jq: command not found
+++ res=127
+Failed to parse channel configuration, make sure you have jq installed
+
+ChatGPT said:
+You're not seeing an actual error yet — but your logs from ./network.sh createChannel ended prematurely with:
+
+python-repl
+Copy
+Edit
+... /scripts/configUpdate.sh: line 35: jq: command not found
+...
+Failed to parse channel configuration, make sure you have jq installed
+🔍 What does this mean?
+Fabric uses jq — a lightweight command-line JSON processor — during the channel update step. The script calls jq to decode and manipulate channel configuration. Since it's not installed, the process cannot complete the anchor peer update.
+
+That’s why you see:
+
+python-repl
+Copy
+Edit
+jq: command not found
+...
+Failed to parse channel configuration, make sure you have jq installed
+This is not a Docker or network error, but simply missing the jq tool in your Ubuntu environment.
+
+✅ How to install jq on Ubuntu
+Install it quickly using either apt or snap:
+
+1. Via APT (recommended)
+bash
+Copy
+Edit
+sudo apt-get update
+sudo apt-get install jq
+This installs the official package (libjq1 along with jq) 
+stackoverflow.com
+snapcraft.io
++4
+idroot.us
++4
+snapcraft.io
++4
+.
+
+2. Or via Snap
+bash
+Copy
+Edit
+sudo snap install jq
+This also works and provides automatic updates 
+jqlang.org
+snapcraft.io
+.
+
+🧪 After Installing
+Verify the installation:
+
+bash
+Copy
+Edit
+jq --version
+You should see something like:
+
+Copy
+Edit
+jq-1.6
+🚀 Finally, rerun your command:
+bash
+Copy
+Edit
+cd ~/Desktop/Cusour/fabric-samples/test-network
+./network.sh createChannel
+With jq installed, the script will successfully complete the channel creation, join peers, and update anchor peer configurations.
+
+📩 Let me know once it works—or if you run into any other issues!
+
+
+
+
+
+
+
+Sources
+You said:
+ssingh1@EXP-D-0319:~/Desktop/Cusour/fabric-samples/test-network$ ./network.sh createChannel
+Using docker and docker compose
+Creating channel 'mychannel'.
+If network is not up, starting nodes with CLI timeout of '5' tries and CLI delay of '3' seconds and using database 'leveldb 
+Bringing up network
+LOCAL_VERSION=v2.5.12
+DOCKER_IMAGE_VERSION=v2.5.12
+WARN[0000] /home/ssingh1/Desktop/Cusour/fabric-samples/test-network/compose/compose-test-net.yaml: the attribute version is obsolete, it will be ignored, please remove it to avoid potential confusion 
+WARN[0000] /home/ssingh1/Desktop/Cusour/fabric-samples/test-network/compose/docker/docker-compose-test-net.yaml: the attribute version is obsolete, it will be ignored, please remove it to avoid potential confusion 
+[+] Running 3/3
+ ✔ Container peer0.org2.example.com  Run...                                    0.0s 
+ ✔ Container orderer.example.com     Runnin...                                 0.0s 
+ ✔ Container peer0.org1.example.com  Run...                                    0.0s 
+CONTAINER ID   IMAGE                               COMMAND             CREATED          STATUS          PORTS                                                                                                                                   NAMES
+727ad2704a58   hyperledger/fabric-peer:latest      "peer node start"   38 minutes ago   Up 38 minutes   0.0.0.0:7051->7051/tcp, [::]:7051->7051/tcp, 0.0.0.0:9444->9444/tcp, [::]:9444->9444/tcp                                                peer0.org1.example.com
+779896b8cbeb   hyperledger/fabric-orderer:latest   "orderer"           38 minutes ago   Up 38 minutes   0.0.0.0:7050->7050/tcp, [::]:7050->7050/tcp, 0.0.0.0:7053->7053/tcp, [::]:7053->7053/tcp, 0.0.0.0:9443->9443/tcp, [::]:9443->9443/tcp   orderer.example.com
+6c6e9e50f940   hyperledger/fabric-peer:latest      "peer node start"   38 minutes ago   Up 38 minutes   0.0.0.0:9051->9051/tcp, [::]:9051->9051/tcp, 7051/tcp, 0.0.0.0:9445->9445/tcp, [::]:9445->9445/tcp                                      peer0.org2.example.com
+Using docker and docker compose
+Generating channel genesis block 'mychannel.block'
+Using organization 1
+/home/ssingh1/Desktop/Cusour/fabric-samples/test-network/../bin/configtxgen
++ '[' 0 -eq 1 ']'
++ configtxgen -profile ChannelUsingRaft -outputBlock ./channel-artifacts/mychannel.block -channelID mychannel
+2025-07-22 12:04:58.716 IST 0001 INFO [common.tools.configtxgen] main -> Loading configuration
+2025-07-22 12:04:58.720 IST 0002 INFO [common.tools.configtxgen.localconfig] completeInitialization -> orderer type: etcdraft
+2025-07-22 12:04:58.720 IST 0003 INFO [common.tools.configtxgen.localconfig] completeInitialization -> Orderer.EtcdRaft.Options unset, setting to tick_interval:"500ms" election_tick:10 heartbeat_tick:1 max_inflight_blocks:5 snapshot_interval_size:16777216 
+2025-07-22 12:04:58.720 IST 0004 INFO [common.tools.configtxgen.localconfig] Load -> Loaded configuration: /home/ssingh1/Desktop/Cusour/fabric-samples/test-network/configtx/configtx.yaml
+2025-07-22 12:04:58.722 IST 0005 INFO [common.tools.configtxgen] doOutputBlock -> Generating genesis block
+2025-07-22 12:04:58.722 IST 0006 INFO [common.tools.configtxgen] doOutputBlock -> Creating application channel genesis block
+2025-07-22 12:04:58.723 IST 0007 INFO [common.tools.configtxgen] doOutputBlock -> Writing genesis block
++ res=0
+Creating channel mychannel
+Adding orderers
++ . scripts/orderer.sh mychannel
++ '[' 0 -eq 1 ']'
++ res=0
+2025-07-22 12:01:37.988 IST 0001 INFO [channelCmd] InitCmdFactory -> Endorser and orderer connections initialized
+2025-07-22 12:01:38.078 IST 0002 INFO [channelCmd] executeJoin -> Successfully submitted proposal to join channel
+Status: 405
+{
+        "error": "cannot join: channel already exists"
+}
+
+Channel 'mychannel' created
+Joining org1 peer to the channel...
+Using organization 1
++ peer channel join -b ./channel-artifacts/mychannel.block
++ res=1
++ peer channel join -b ./channel-artifacts/mychannel.block
++ res=1
++ peer channel join -b ./channel-artifacts/mychannel.block
++ res=1
++ peer channel join -b ./channel-artifacts/mychannel.block
++ res=1
+2025-07-22 12:05:14.071 IST 0001 INFO [channelCmd] InitCmdFactory -> Endorser and orderer connections initialized
+Error: proposal failed (err: bad proposal response 500: cannot create ledger from genesis block: ledger [mychannel] already exists with state [ACTIVE])
+After 5 attempts, peer0.org1 has failed to join channel 'mychannel'
+
+ChatGPT said:
+You're seeing the following key error messages:
+
+vbnet
+Copy
+Edit
+Status: 405 … "error": "cannot join: channel already exists"
+...
+Error: proposal failed … cannot create ledger from genesis block: ledger [mychannel] already exists with state [ACTIVE]
+After 5 attempts, peer0.org1 has failed to join channel 'mychannel'
+Here’s what’s happening and how to address it:
+
+🧠 Explanation of the Error
+Channel Already Created
+The 405 status indicates that orderer correctly rejects a request to create mychannel again—it already exists in the system.
+
+Peers Already Joined
+The "ledger already exists" error typically means the peer has already joined the channel once and keeps trying to join it again using the same genesis block 
+reddit.com
+reddit.com
++12
+stackoverflow.com
++12
+github.com
++12
+.
+
+Residual Docker Volumes or Peer State
+Even if you thought you hadn’t joined before, stale peer volumes on Docker might already contain channel data. That leftover state causes the peer to believe it’s already part of mychannel 
+reddit.com
++3
+stackoverflow.com
++3
+stackoverflow.com
++3
+.
+
+✅ How to Resolve It
+A. Clean Up the Network
+Stop and remove all containers and volumes, then bring the network up fresh:
+
+bash
+Copy
+Edit
+cd ~/Desktop/Cusour/fabric-samples/test-network
+
+./network.sh down
+
+docker system prune --volumes -f
+
+./network.sh up
+./network.sh createChannel
+This ensures no stale data interferes.
+
+B. Create and Join Separately (If Needed)
+Avoid combining commands that might cause timing issues:
+
+bash
+Copy
+Edit
+./network.sh up
+sleep 10  # let containers stabilize
+./network.sh createChannel
+Then ensure each peer is properly joined only once.
+
+🔍 Quick Summary
+“Channel already exists” and “ledger already exists” errors = duplication issues.
+
+Usually caused by stale Docker volumes or peer state.
+
+Clean environment with network.sh down + docker system prune --volumes.
+
+Then recreate the network and channel, ensuring each peer joins just once.
+
+Let me know when you've run the cleanup steps or if you want a script to automate this safely!
+
