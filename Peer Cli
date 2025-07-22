@@ -1,0 +1,101 @@
+what is peer cli??
+
+The Peer CLI is Fabric’s primary command-line interface tool used to interact with peer nodes in your network. It's provided through the Fabric peer binary, which you run directly in your terminal (typically inside the CLI Docker container or on your local host if Fabric binaries are installed).
+
+🛠️ What It Is
+A client executable named peer — located in the Fabric bin/ directory.
+
+Used for many key operations:
+
+Channel management: create/join/fetch/update channels
+
+Chaincode lifecycle: install, package, approve, commit, query, invoke
+
+Peer administration: check node status, manage logs, etc. 
+hyperledgerlabsml.readthedocs.io
++11
+hadv-fabric.readthedocs.io
++11
+doc-fabric.readthedocs.io
++11
+
+🧭 Organizing the peer CLI
+Here's the general command structure:
+
+php-template
+Copy
+Edit
+peer <subcommand> <action> [flags]
+Examples:
+
+peer channel create -o orderer.example.com:7050 …
+
+peer chaincode install -n mycc -v 1.0 -p path/to/cc
+
+peer node status — shows the running peer node state 
+Reddit
++5
+hyperledger-fabric-doc.readthedocs.io
++5
+GeeksforGeeks
++5
+
+📌 When You Use It
+You typically use the Peer CLI:
+
+Inside the CLI container (when using test-network):
+
+bash
+Copy
+Edit
+docker exec -it cli bash
+On your host, with Fabric binaries installed:
+
+bash
+Copy
+Edit
+export PATH=~/fabric-samples/bin:$PATH
+export FABRIC_CFG_PATH=~/fabric-samples/config
+Once set, you can run peer --help to see available commands or peer <subcommand> --help for more detail 
+Reddit
++3
+hyperledgerlabsml.readthedocs.io
++3
+GeeksforGeeks
++3
+GitHub
++4
+hadv-fabric.readthedocs.io
++4
+hyperledger-fabric.readthedocs.io
++4
+.
+
+📚 Handy Subcommands
+Subcommand	Purpose
+peer channel	Manage channels (create, join, update, fetch)
+peer chaincode	Handle smart contracts (install, approve, query, invoke)
+peer node	Control peer process (start, status)
+peer logging	Retrieve or set logging levels
+peer version	View peer's version information
+
+✅ Getting Started
+Try these tests in your terminal or CLI container:
+
+bash
+Copy
+Edit
+peer --version
+peer node status
+peer channel list
+peer chaincode list --installed
+These commands confirm that the peer CLI is functional and properly linked to your network.
+
+🎯 TL;DR
+The Peer CLI (peer binary) is your go-to tool for peer-related operations in Fabric.
+
+It supports channel, chaincode, node, and logging functionalities.
+
+Make sure it's in your PATH, properly configured with FABRIC_CFG_PATH, and run commands inside your network context (CLI container or configured host).
+
+Let me know if you’d like help with specific commands (e.g., installing chaincode or querying a channel) or troubleshooting the CLI setup!
