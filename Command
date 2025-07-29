@@ -1,0 +1,18 @@
+ed -i '/"path": "\/tmp\/crypto\/peerOrganizations\/org1.example.com\/peers\/peer0.org1.example.com\/tls\/ca.crt"/d' connection-profile/test-network.json
+
+To get assets
+d ~/fabric-samples/test-network && ./network.sh cc query -c universitychannel -ccn basic -ccqc '{"Args":["GetAllAssets"]}'
+
+
+to view asset at path
+./network.sh cc query -c universitychannel -ccn universityrecord -ccqc '{"Args":["GetAllAssets"]}'
+
+to create asset
+./network.sh cc invoke -c universitychannel -ccn universityrecord -ccf InitLedger -ccqc '{"Args":[]}'
+
+corrrect cc command
+./network.sh cc -h
+
+./network.sh cc invoke -c universitychannel -ccn universityrecord -ccic '{"Args":["CreateAsset","asset7","purple","20","Alice","900"]}'
+/network.sh cc invoke -c universitychannel -ccn universityrecord -ccic '{"Args":["CreateAsset","asset8","orange","25","Bob","1000"]}'
+./network.sh cc query -c universitychannel -ccn universityrecord -ccqc '{"Args":["GetAllAssets"]}'
